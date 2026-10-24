@@ -1,3 +1,9 @@
+---
+license: apache-2.0
+base_model: huihui-ai/Qwen3-8B-abliterated
+tags: [prompt-enhancer, text-to-image, moss-image, ollama]
+---
+
 # MOSS-Image Prompt Enhancer
 
 An [Ollama](https://ollama.com) model that turns short image ideas into detailed prompts for the [MOSS-Image](https://github.com/OpenMOSS/MOSS-Image) text-to-image model.
@@ -27,6 +33,17 @@ See [examples/outputs.md](examples/outputs.md) for real outputs.
 - [Ollama](https://ollama.com/download)
 - Enough memory for the base model, `huihui_ai/qwen3-abliterated:8b` (about 5 GB download; roughly 8 GB of RAM or VRAM is comfortable)
 - Python 3, only if you use Layout mode (see below)
+
+## Run directly from Ollama
+
+To run the model directly from Ollama.com, use the following command:
+
+```bash
+ollama pull DutchIT/moss-image-prompt-enhancer
+ollama run DutchIT/moss-image-prompt-enhancer "a woman reading in a cafe"
+```
+
+`pull` downloads the model once; `run` also pulls it automatically if it is missing. The download contains the base model weights plus this project's system prompt and parameters, and no new weights.
 
 ## Install
 
