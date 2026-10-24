@@ -82,6 +82,12 @@ Get `compile_prompt.py` from the [skill's `scripts` folder](https://github.com/O
 
 The model is not asked to do the coordinate arithmetic because small models get it wrong.
 
+## Usage in ComfyUI
+
+For usage within ComfyUI I would recommend using the simple `comfyui-ollama` node without any special settings. Simply connect a input textbox to the prompt connector (no system prompt input needed).
+
+![comfyui-screenshot](examples/images/comfyui-screenshot.png)
+
 ## Settings
 
 Defined in the [Modelfile](Modelfile):
