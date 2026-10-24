@@ -1,5 +1,10 @@
 # MOSS-Image Prompt Enhancer
 
+license: apache-2.0
+base_model: huihui-ai/Qwen3-8B-abliterated
+tags: [prompt-enhancer, text-to-image, moss-image, ollama]
+
+
 An [Ollama](https://ollama.com) model that turns short image ideas into detailed prompts for the [MOSS-Image](https://github.com/OpenMOSS/MOSS-Image) text-to-image model.
 
 It is based on the official [moss-image-prompt-enhancer skill](https://github.com/OpenMOSS/MOSS-Image/tree/main/skills/moss-image-prompt-enhancer), packaged as a local model so it can run offline without an agent.

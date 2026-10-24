@@ -1,0 +1,8 @@
+# Ignore Python cache and Ollama model files
+__pycache__/
+*.pyc
+ollama_models/
+
+# Python virtual environment
+venv/
+.venv/
