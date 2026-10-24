@@ -141,3 +141,7 @@ If it prints `<think>` blocks, disable thinking (`ollama run --think=false moss-
 - Base model: [huihui_ai/qwen3-abliterated](https://ollama.com/huihui_ai/qwen3-abliterated), derived from [Qwen3](https://github.com/QwenLM/Qwen3).
 
 This project is not affiliated with OpenMOSS or Alibaba. Check the licenses of the upstream projects above before redistributing.
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE).
