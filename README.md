@@ -105,6 +105,29 @@ For usage within ComfyUI I would recommend using the simple `comfyui-ollama` nod
 
 ![comfyui-screenshot](examples/images/comfyui-screenshot.png)
 
+## Image-to-image (`Modelfile.i2i`)
+
+`Modelfile.i2i` builds a second model that takes an **image** and writes a MOSS-Image prompt for it, for image-to-image flows. It uses a vision base model, `huihui_ai/qwen3-vl-abliterated:8b-instruct` (the non-thinking variant, so answers are fast).
+
+```bash
+ollama create moss-prompt-enhancer-i2i -f Modelfile.i2i
+ollama run moss-prompt-enhancer-i2i "Describe this image." ./photo.png
+```
+
+- **Image only:** returns a detailed description of the image as it is, including exact visible text, counts, composition, lighting, style, and the apparent age and ethnicity of any people.
+- **Image plus an instruction** (for example `make it a rainy evening and change her sweater to red`): returns the full prompt for the modified image, with everything else kept.
+- **Layout mode:** add `Layout mode, WIDTHxHEIGHT` to the request (for example `Layout mode, 736x1120`) to get a JSON layout of the image. The model measures boxes on a normalized 0-1000 grid, so convert them to pixels, then compile as for the main model:
+
+  ```bash
+  python scripts/to_pixels.py draft.json --output pixels.json
+  python compile_prompt.py pixels.json --output prompt.txt
+  ```
+
+  Text and the main subjects are located accurately. It often adds extra items for scenery (lights, crowd, sky); delete those you don't need before compiling.
+- This model must be the `-instruct` variant. The default `qwen3-vl-abliterated` tag is a thinking model that spends thousands of tokens reasoning and may return an empty answer.
+- It does not always state an age or ethnicity for people; add them to your instruction if you need them.
+- In ComfyUI, use the `comfyui-ollama` node with an image input and the model name `moss-prompt-enhancer-i2i`.
+
 ## Settings
 
 Defined in the [Modelfile](Modelfile):
@@ -122,6 +145,9 @@ The `Modelfile` holds the full system prompt and a few example conversations (fe
 
 ```text
 Modelfile             system prompt, parameters, few-shot examples
+Modelfile.i2i         image-to-prompt variant (vision base model)
+scripts/
+  to_pixels.py        converts i2i Layout boxes (0-1000 grid) to pixels
 examples/
   inputs.jsonl        20 test prompts with expected mode and focus checks
   outputs.md          real model outputs and known issues
