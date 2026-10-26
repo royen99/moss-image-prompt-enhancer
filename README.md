@@ -107,26 +107,65 @@ For usage within ComfyUI I would recommend using the simple `comfyui-ollama` nod
 
 ## Image-to-image (`Modelfile.i2i`)
 
-`Modelfile.i2i` builds a second model that takes an **image** and writes a MOSS-Image prompt for it, for image-to-image flows. It uses a vision base model, `huihui_ai/qwen3-vl-abliterated:8b-instruct` (the non-thinking variant, so answers are fast).
+`Modelfile.i2i` builds a second model that looks at an **image** and writes a MOSS-Image prompt for it, so you can recreate or modify an existing picture. It uses the vision base model `huihui_ai/qwen3-vl-abliterated:8b-instruct` (about 6 GB). It must be the `-instruct` variant: the default `qwen3-vl-abliterated` tag is a thinking model that spends thousands of tokens reasoning and can return an empty answer.
+
+### Install
 
 ```bash
 ollama create moss-prompt-enhancer-i2i -f Modelfile.i2i
-ollama run moss-prompt-enhancer-i2i "Describe this image." ./photo.png
 ```
 
-- **Image only:** returns a detailed description of the image as it is, including exact visible text, counts, composition, lighting, style, and the apparent age and ethnicity of any people.
-- **Image plus an instruction** (for example `make it a rainy evening and change her sweater to red`): returns the full prompt for the modified image, with everything else kept.
-- **Layout mode:** add `Layout mode, WIDTHxHEIGHT` to the request (for example `Layout mode, 736x1120`) to get a JSON layout of the image. The model measures boxes on a normalized 0-1000 grid, so convert them to pixels, then compile as for the main model:
+The first run downloads the vision base model.
 
-  ```bash
-  python scripts/to_pixels.py draft.json --output pixels.json
-  python compile_prompt.py pixels.json --output prompt.txt
-  ```
+### Three ways to use it
 
-  Text and the main subjects are located accurately. It often adds extra items for scenery (lights, crowd, sky); delete those you don't need before compiling.
-- This model must be the `-instruct` variant. The default `qwen3-vl-abliterated` tag is a thinking model that spends thousands of tokens reasoning and may return an empty answer.
+**1. Describe an image** (Caption mode, the default). Put the image path in the prompt, after the instruction:
+
+```bash
+ollama run moss-prompt-enhancer-i2i "Describe this image. ./photo.png"
+```
+
+The result is one prose prompt that covers the subject, composition, lighting, style, exact visible text, counts, and the apparent age and ethnicity of people.
+
+**2. Describe it with a change.** Add what should be different; everything else is kept and the full prompt for the modified image is returned:
+
+```bash
+ollama run moss-prompt-enhancer-i2i "make it a rainy evening and change her sweater to red ./photo.png"
+```
+
+**3. Get a Layout** (best for images with text or several distinct elements). Ask for layout mode and give the size of the image you want to generate:
+
+```bash
+ollama run moss-prompt-enhancer-i2i "Layout mode, 736x1120 ./poster.png"
+```
+
+Copy the JSON it prints into `draft.json`. The model measures boxes on a normalized 0-1000 grid, so the draft has to be converted to pixels and then compiled:
+
+```bash
+python scripts/to_pixels.py draft.json --output pixels.json
+python compile_prompt.py pixels.json --output prompt.txt
+```
+
+`compile_prompt.py` is the official script from the [MOSS-Image skill](https://github.com/OpenMOSS/MOSS-Image/tree/main/skills/moss-image-prompt-enhancer/scripts). Paste the contents of `prompt.txt` into MOSS-Image and generate at the same width and height you gave in the request.
+
+### Typical image-to-image flow
+
+1. Feed a real image to the model with `Layout mode, WIDTHxHEIGHT` (or plain Caption mode).
+2. Optionally edit the result: change a caption, move or delete an item, change visible text.
+3. Convert and compile the layout (layout mode only), or use the caption as is.
+4. Generate with MOSS-Image at the chosen size. The result is comparable to the source image, with your edits applied.
+
+See [examples/output-i2i.md](examples/output-i2i.md) for real images and the layouts generated from them.
+
+### Notes
+
+- Text and the main subjects are located accurately. The model often adds extra items for scenery (lights, crowd, sky); delete those you don't need before compiling.
 - It does not always state an age or ethnicity for people; add them to your instruction if you need them.
-- In ComfyUI, use the `comfyui-ollama` node with an image input and the model name `moss-prompt-enhancer-i2i`.
+- Unreadable or garbled text in the source image may be transcribed literally.
+
+### In ComfyUI
+
+Use the `comfyui-ollama` node with an image input, the model name `moss-prompt-enhancer-i2i`, and your instruction as the prompt. Feed the returned text (or the compiled layout) into the MOSS-Image prompt input.
 
 ## Settings
 
@@ -151,6 +190,7 @@ scripts/
 examples/
   inputs.jsonl        20 test prompts with expected mode and focus checks
   outputs.md          real model outputs and known issues
+  output-i2i.md       image-to-image examples (real image, generated layout)
   images/             optional generated images for the examples
 tests/
   evaluation.md       manual checklist for scoring outputs
